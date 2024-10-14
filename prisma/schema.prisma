@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id                        Int      @id @default(autoincrement())
+  categoryNameEnglish       String
+  categoryNameFrench        String
+  categoryNameArabic        String
+  categoryDescriptionEnglish String
+  categoryDescriptionFrench  String
+  categoryDescriptionArabic  String
+  imgUrl                    String
+  courses                   Course[]
+}
+
+model Course {
+  id                  Int      @id @default(autoincrement())
+  nameEnglish         String
+  nameFrench          String
+  nameArabic          String
+  descriptionEnglish  String
+  descriptionFrench   String
+  descriptionArabic   String
+  imgUrl              String
+  category            Category @relation(fields: [categoryId], references: [id])
+  categoryId          Int
+  coursePlanPrices    CoursePlanPrice[]
+  leadCourses         LeadCourse[]
+}
+
+model Plan {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String
+  imgUrl        String
+  isPopular     Boolean
+  coursePlanPrices CoursePlanPrice[]
+  planFeatures  PlanFeature[]
+  leads         Lead[]
+}
+
+model CoursePlanPrice {
+  id        Int    @id @default(autoincrement())
+  course    Course @relation(fields: [courseId], references: [id])
+  courseId  Int
+  plan      Plan   @relation(fields: [planId], references: [id])
+  planId    Int
+  price     Float
+
+  @@unique([courseId, planId])
+}
+
+model PlanFeature {
+  id          Int    @id @default(autoincrement())
+  plan        Plan   @relation(fields: [planId], references: [id])
+  planId      Int
+  name        String
+  description String
+}
+
+model Lead {
+  id          Int      @id @default(autoincrement())
+  fullName    String
+  phoneNumber String
+  email       String
+  address     String
+  sexe        String
+  plan        Plan     @relation(fields: [planId], references: [id])
+  planId      Int
+  leadCourses LeadCourse[]
+}
+
+model LeadCourse {
+  id        Int    @id @default(autoincrement())
+  lead      Lead   @relation(fields: [leadId], references: [id])
+  leadId    Int
+  course    Course @relation(fields: [courseId], references: [id])
+  courseId  Int
+
+  @@unique([leadId, courseId])
+}
